@@ -1,0 +1,22 @@
+# Ignore editor config files
+*.idea
+*.vscode
+
+# Ignore Go build artifacts
+*.exe
+*.out
+*.a
+*.o
+*.so
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore local dependencies
+vendor/
+
+# Ignore other files
+node_modules/
+dist/
+coverage.out

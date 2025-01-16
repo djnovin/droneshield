@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func InitDB() *sql.DB {
+func InitDB() (*sql.DB, error) {
 	user := getEnv("DB_USER", "neondb_owner")
 	password := getEnv("DB_PASSWORD", "your_default_password")
 	host := getEnv("DB_HOST", "ep-tight-union-a7q3zgwi.ap-southeast-2.aws.neon.tech")
@@ -21,22 +21,20 @@ func InitDB() *sql.DB {
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
 		user, password, host, port, dbName, sslMode)
 
-	db, err := sql.Open("postgres", connStr)
+  db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
-		log.Fatalf("Error opening database: %v", err)
+		return nil, fmt.Errorf("error opening database: %w", err)
 	}
 
-	// Set connection pool parameters
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(5 * time.Minute)
+  db.SetMaxOpenConns(10)
+  db.SetMaxIdleConns(5)
+  db.SetConnMaxLifetime(5 * time.Minute)
 
 	if err := db.Ping(); err != nil {
-		log.Fatalf("Error pinging database: %v", err)
+		return nil, fmt.Errorf("error pinging database: %w", err)
 	}
 
-	log.Println("Successfully connected to database")
-	return db
+	return db, nil
 }
 
 func getEnv(key, defaultValue string) string {
